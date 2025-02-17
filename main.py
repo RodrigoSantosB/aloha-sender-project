@@ -1,5 +1,5 @@
 import sounddevice as sd
-from talk import listen_and_recognize
+from scripts.talk import listen_and_recognize
 import pyttsx3
 
 
