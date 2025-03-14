@@ -1,65 +1,79 @@
 import speech_recognition as sr
 import pyttsx3
 import sounddevice as sd
+import pyaudio
+import wave
+import io
+import serial
 
-jarvis = pyttsx3.init()
 
-# Listen and recognize the speech
-def listen_and_recognize():
-    # Initialize recognizer
+PAYLOAD_SIZE = 102
+SERIAL_PORT = "dev/ttyACM0"
+BAUD_RATE = 9600
+
+def talk():
     mic = sr.Recognizer()
+    chunk = 1024  
+    audio_wav = None
+    
+    p = pyaudio.PyAudio()  
 
-    # Use the microphone as the audio source
     with sr.Microphone() as source:
-        # chama um algoritmo de reducao de ruido
+        
+        print(source)
         mic.adjust_for_ambient_noise(source)
         
-        # Frase para o usuario dizer algo
-        print("Say something...")
-        
         # Armazena o audio
-        audio = mic.listen(source)
-    
-    try:
-        # Recognize the speech default language is pt-BR
-        text = mic.recognize_google(audio, language='pt-BR')
-        text = text.lower()
+        print("Escutando...")
+        audio = mic.listen(source, timeout=5, phrase_time_limit=10)
+        print("1...")
+        audio_bytes = audio.get_wav_data()
+        print("2...")
+        packets = packet_generator(audio_bytes)
+        print("3...")
+        transmit_packets(packets)
+        print("4...")
         
-        if "jarvis" in text:
-            # Retirar comando Jarvis da frase
-            text = text.replace("jarvis", "")
-            jarvis.say(text)
-            jarvis.runAndWait()
-        return text
-    
-    except sr.UnknownValueError:
-        print("Não entendi o que você disse")
-    except sr.RequestError as e:
-        print("Could not request results; {0}".format(e))
     return None
 
+        
+def packet_generator(audio_bytes):
+    packet_audio = []
+    num_packets = (len(audio_bytes) + PAYLOAD_SIZE - 1)
 
-
-def commands():
-    jarvis.say("Ola, eu sou Jarvis, como posso te ajudar?")
-    command = listen_and_recognize()
-    
+    for i in range(num_packets):
+        packet_payload = audio_bytes[i * PAYLOAD_SIZE: (i + 1) * PAYLOAD_SIZE]
+        packet_audio.append(packet_payload)
+        
+    return packet_audio
+        
+def transmit_packets(packets):
     try:
-        if "tocar musica" in command:
-            jarvis.say("Tocando música")
-            jarvis.runAndWait()
+        ser = serial.Serial(SERIAL_PORT, BAUD_RATE)
+        print("Transmitting packets...")
+        sequence_number = 0  # Initialize the sequence number
+        for i, packet in enumerate(packets):
+            sequence_number += 1  # Increment the sequence number
+            index = i.to_bytes(1, byteorder='big')
+            ser.write(index)  # Send the index
+            ser.write(sequence_number.to_bytes(1, byteorder='big'))  # Send the sequence number
+            ser.write(packet)
+            # ...
             
-        elif "proxima musica" in command:
-            jarvis.say("Tocando próxima música")
-            jarvis.runAndWait()
+            # Wait for acknowledgement
+            while True:
+                if ser.readable() and ser.in_waiting >= 2:  # Wait for index and sequence number
+                    received_index = ord(ser.read())
+                    received_sequence_number = ord(ser.read())
+                    if received_index == i and received_sequence_number == sequence_number:
+                        print(f"Acknowledged packet: Index={received_index}, Sequence Number={received_sequence_number}")
+                        break  # Acknowledgement received, move to the next packet
+                # ...
             
-        elif "musica anterior" in command:
-            jarvis.say("Tocando música anterior")
-            jarvis.runAndWait()
-            
-        elif "parar musica" in command:
-            jarvis.say("Até logo")
-            jarvis.runAndWait()
-    except:
-        jarvis.say("Não entendi o que você disse")
-        jarvis.runAndWait()
+            # ...
+        ser.close()
+        print("Transmission complete")
+    except serial.SerialException as e:
+        print(f"Serial communication error: {str(e)}")
+    except Exception as e:
+        print(f"An error occurred during transmission: {str(e)}")
