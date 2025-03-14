@@ -6,4 +6,4 @@ SpeechRecognition==3.14.1
 wikipedia==1.4.0
 wave
 pyserial==3.3
-keyboard
+pynput

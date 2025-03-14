@@ -8,7 +8,7 @@ import serial
 
 
 PAYLOAD_SIZE = 102
-SERIAL_PORT = "dev/ttyACM0"
+SERIAL_PORT = "/dev/ttyACM0"
 BAUD_RATE = 9600
 
 def talk():
@@ -21,7 +21,7 @@ def talk():
         
         # Armazena o audio
         print("Escutando...")
-        audio = mic.listen(source, timeout=5, phrase_time_limit=10)
+        audio = mic.record(source, duration=8)
         print("1...")
         audio_bytes = audio.get_wav_data()
         print("2...")
