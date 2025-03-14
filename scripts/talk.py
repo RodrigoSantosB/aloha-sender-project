@@ -13,10 +13,6 @@ BAUD_RATE = 9600
 
 def talk():
     mic = sr.Recognizer()
-    chunk = 1024  
-    audio_wav = None
-    
-    p = pyaudio.PyAudio()  
 
     with sr.Microphone() as source:
         
