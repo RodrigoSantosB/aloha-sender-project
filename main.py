@@ -1,38 +1,10 @@
-import sounddevice as sd
-from scripts.talk import listen_and_recognize
-import pyttsx3
-
-
-jarvis = pyttsx3.init()
-
-
+import keyboard
+from scripts.talk import talk
 
 if __name__ == "__main__":
-    
-    # text = listen_and_recognize()
     while True:
-        # Listen and recognize the speech
-        text = listen_and_recognize()
-        jarvis.say("Ola, eu sou Jarvis, como posso te ajudar?")
-        command = listen_and_recognize()
+        # Wait for the space key to be pressed
+        print("Pressione ESPAÇO para falar...")
+        keyboard.wait("space")  # Blocks execution until space is pressed
         
-        try:
-            if "tocar musica" in command:
-                jarvis.say("Tocando música")
-                jarvis.runAndWait()
-                
-            elif "proxima musica" in command:
-                jarvis.say("Tocando próxima música")
-                jarvis.runAndWait()
-                
-            elif "musica anterior" in command:
-                jarvis.say("Tocando música anterior")
-                jarvis.runAndWait()
-                
-            elif "parar musica" in command:
-                jarvis.say("Até logo")
-                jarvis.runAndWait()
-                break
-        except:
-            jarvis.say("Não entendi o que você disse")
-            jarvis.runAndWait()
+        text = talk()  # Call the talk function when space is pressed

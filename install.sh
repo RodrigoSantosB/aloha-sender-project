@@ -15,7 +15,7 @@ pip install --upgrade pip
 # Instalar os requisitos
 pip install -r requirements.txt || {
     echo "Erro ao instalar requirements, tentando corrigir..."
-    sudo apt-get update && sudo apt-get install -y portaudio19-dev
+    # sudo apt-get update && sudo apt-get install -y portaudio19-dev
     pip install pyaudio
 }
 
