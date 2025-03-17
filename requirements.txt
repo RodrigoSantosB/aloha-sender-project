@@ -6,4 +6,8 @@ SpeechRecognition==3.14.1
 wikipedia==1.4.0
 wave
 pyserial==3.3
+pynput
+pyyaml
+jinja2
+PyAudio==0.2.14
 keyboard
