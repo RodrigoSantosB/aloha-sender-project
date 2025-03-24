@@ -7,15 +7,17 @@ from pydub import AudioSegment
 import wave
 import io
 
-PAYLOAD_SIZE = 102
+PAYLOAD_SIZE = 62
 SERIAL_PORT = "/dev/ttyACM0" 
 BAUD_RATE = 9600
 
 class Sender():
     def __init__(self):
-        self.ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=2)
+        self.ser = serial.Serial(baudrate=BAUD_RATE, timeout=2)
+        self.ser.port = SERIAL_PORT
 
     def send_string(self, text):
+        self.ser.open()
         try:
             self.ser.write(text.encode()) 
             print(f"Message Sent: {text}")
@@ -33,19 +35,24 @@ class Sender():
             print(f"Serial communication error: {str(e)}")
         except Exception as e:
             print(f"An error occurred: {str(e)}")
+        self.ser.close()
             
     def send_audio(self):
+        self.ser.open()
         mic = sr.Recognizer()
         with sr.Microphone() as source:
             mic.adjust_for_ambient_noise(source)
             print("Escutando...")
             audio = mic.record(source, duration=2)
             audio_bytes = audio.get_wav_data()
-
             compressed_audio = self.compress_audio(audio_bytes)
+            # Currently not separating audio into packets
             packets = self.packet_generator(compressed_audio)
+            # packets = [compressed_audio]
             print(f"Total Packets: {len(packets)}")
             self.transmit_packets(packets)
+            self.ser.write(b"END")
+        self.ser.close()
             
     def compress_audio(self, audio_bytes):
         audio_bytes = io.BytesIO(audio_bytes)
@@ -66,21 +73,17 @@ class Sender():
     def transmit_packets(self, packets):
         try:
             print("Transmitting packets...")
-
             for i, packet in enumerate(packets): 
                 self.ser.write(packet)
-
                 # **Wait for ACK**
                 ack_received = False
                 start_time = time.time()
-                while time.time() - start_time < 5:  
+                while time.time() - start_time < 30:  
                     if self.ser.in_waiting > 0:  
                         ack = self.ser.readline().decode().strip()  
-                        print(f"Received: {ack}")
-                        if ack == "ACK":
+                        if ack:
                             ack_received = True
                             break
-
                 if not ack_received:
                     print(f"ACK Timeout: Packet {i} not acknowledged!")
 
