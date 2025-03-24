@@ -1,4 +1,4 @@
-from scripts.sender import Sender
+from communication.sender import Sender
 
 sender = Sender()
 while True:
