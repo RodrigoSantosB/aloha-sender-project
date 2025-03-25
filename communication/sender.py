@@ -10,6 +10,7 @@ import io
 PAYLOAD_SIZE = 62
 SERIAL_PORT = "/dev/ttyACM0" 
 BAUD_RATE = 9600
+AUDIO_PATH = "/home/lucas/ALOHA-sender-project/audios/alou_world.mp3"
 
 class Sender():
     def __init__(self):
@@ -36,8 +37,19 @@ class Sender():
         except Exception as e:
             print(f"An error occurred: {str(e)}")
         self.ser.close()
+        
+    def send_file_audio(self):
+        try:
+            with open(AUDIO_PATH, "rb") as audio_file:
+                audio_bytes = audio_file.read() 
+                print(f"Sent {len(audio_bytes)} bytes")
+        except Exception as e:
+            print(f"Error: {e}")
             
-    def send_audio(self):
+        packets = self.packet_generator(audio_bytes)
+        self.transmit_packets(packets)
+        
+    def send_recorded_audio(self):
         self.ser.open()
         mic = sr.Recognizer()
         with sr.Microphone() as source:
@@ -46,9 +58,7 @@ class Sender():
             audio = mic.record(source, duration=2)
             audio_bytes = audio.get_wav_data()
             compressed_audio = self.compress_audio(audio_bytes)
-            # Currently not separating audio into packets
             packets = self.packet_generator(compressed_audio)
-            # packets = [compressed_audio]
             print(f"Total Packets: {len(packets)}")
             self.transmit_packets(packets)
             self.ser.write(b"END")
@@ -78,7 +88,7 @@ class Sender():
                 # **Wait for ACK**
                 ack_received = False
                 start_time = time.time()
-                while time.time() - start_time < 30:  
+                while time.time() - start_time < 5:  
                     if self.ser.in_waiting > 0:  
                         ack = self.ser.readline().decode().strip()  
                         if ack:

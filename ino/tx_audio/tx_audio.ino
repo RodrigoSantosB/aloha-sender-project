@@ -15,24 +15,6 @@ void setup() {
 }
 
 void loop() {
-  int packetSize = LoRa.parsePacket();
-  if (packetSize) {
-    uint8_t payload[PAYLOAD_SIZE];  // Array to store payload
-    for (int i = 0; i < PAYLOAD_SIZE; i++) {
-        if (LoRa.available()) {
-            payload[i] = LoRa.read();  // Read payload bytes
-        }
-    }
-    int SRssi = LoRa.packetRssi();  // get signal intensity
-    Serial.print(",");
-    for (int i = 0; i < PAYLOAD_SIZE; i++) {
-        Serial.print(payload[i]);
-        if (i < PAYLOAD_SIZE - 1) Serial.print(",");  // Comma-separated
-    }
-    Serial.print(",");  
-  }
-
-
   while (Serial.available()==0){
   }  
   byte payload[PAYLOAD_SIZE];
@@ -41,8 +23,7 @@ void loop() {
 
   Serial.write("ACK");
 
-  // 🔻 Uncomment if you want LoRa transmission 🔻
-  // LoRa.beginPacket();
-  // LoRa.write(payload, PAYLOAD_SIZE);
-  // LoRa.endPacket();
+  LoRa.beginPacket();
+  LoRa.write(payload, PAYLOAD_SIZE);
+  LoRa.endPacket();
 }
