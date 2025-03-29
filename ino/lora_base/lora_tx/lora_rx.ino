@@ -1,9 +1,8 @@
 #include <SPI.h>
 #include <LoRa.h>
 
-String inString = "";    // string de leitura
-int dadoRecebido = 0;
-int valorRssi = 0;
+// byte message[62] = {}; // Armazena a string recebida
+int valorRssi = 0;  // Intensidade do sinal
 /*
   Received Signal Strength Indication
   RSSI=-30dBm: sinal forte.
@@ -22,23 +21,34 @@ void setup() {
 }
 
 void loop() {
-
   // Tenta receber pacote de dados
   int packetSize = LoRa.parsePacket();
   if (packetSize) {
-    // Lê pacote
-    while (LoRa.available())
-    {
-      int inChar = LoRa.read();
-      inString += (char)inChar;
-      dadoRecebido = inString.toInt();  // Converte para Int
+    byte message[62] = {};;  // Limpa a string anterior
+    
+    // Lê pacote caractere por caractere
+    int i = 0;
+    while (LoRa.available()) {
+      byte packet_byte = (byte)LoRa.read();
+      message[i] = packet_byte;
+      i += 1;
     }
-    inString = "";
-    valorRssi = LoRa.packetRssi();
+    
+    valorRssi = LoRa.packetRssi();  // Obtém a intensidade do sinal
+
+    // Imprime os dados recebidos
+    // Serial.print("Mensagem Recebida: ");
+    
+    // for (int i  = 0; i < sizeof(message); i++){
+    //  Serial.print(message[i]);
+    // }
+
+    Serial.write(message, i);
+
+    // Serial.print(" | Sinal: ");
+    // Serial.print(valorRssi);
+    // Serial.println(" dBm");
   }
-  Serial.print("Dado Recebido: ");
-  Serial.print(dadoRecebido);  // Imprime na Serial o valor recebido
-  Serial.print("; Sinal: ");
-  Serial.println(valorRssi);  // Imprime na Serial a intensidade do sinal
-  delay(10);
+  
+  delay(10);  // Pequeno delay para evitar sobrecarga
 }
