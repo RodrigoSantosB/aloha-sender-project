@@ -37,7 +37,10 @@ void loop() {
   }  
   byte payload[PAYLOAD_SIZE];
   
-  Serial.read(payload, PAYLOAD_SIZE); // Read entire payload
+  for (int i = 0; i < PAYLOAD_SIZE; i++) {
+    while (!Serial.available());  // Aguarda até que um byte esteja disponível
+    payload[i] = Serial.read();   // Lê um byte por vez
+  }
 
   Serial.write("ACK");
 

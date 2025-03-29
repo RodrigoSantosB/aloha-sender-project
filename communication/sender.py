@@ -10,7 +10,7 @@ import io
 PAYLOAD_SIZE = 62
 SERIAL_PORT = "/dev/ttyACM0" 
 BAUD_RATE = 9600
-AUDIO_PATH = "/home/lucas/ALOHA-sender-project/audios/alou_world.mp3"
+AUDIO_PATH = "/home/rsb6/Desktop/Diciplinas/Top avanc em redes/aloha-sender-project/audios/alou_world.mp3"
 
 class Sender():
     def __init__(self):
