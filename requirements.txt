@@ -11,3 +11,6 @@ pyyaml
 jinja2
 PyAudio==0.2.14
 keyboard
+pydub
+ffmpeg
+numpy
