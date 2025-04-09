@@ -74,7 +74,3 @@ class Receiver():
 def main():
     receiver = Receiver()  # Create an instance of the Receiver class
     receiver.receive()  # Start receiving data
-
-# Entry point of the script
-if __name__ == "__main__":
-    main()  # Call the main function
