@@ -29,11 +29,35 @@ void clearSerialBuffer(){
 
 // Main loop function runs repeatedly
 void loop() {
+  // Attempt to receive a data packet
+  int packetSize = LoRa.parsePacket();
+  if (packetSize) { // If a packet is received
+    uint8_t payload[PAYLOAD_SIZE];  // Array to store the payload
+
+    // Read the payload byte by byte
+    for (int i = 0; i < PAYLOAD_SIZE; i++) {
+        if (LoRa.available()) { // Check if data is available in the LoRa buffer
+            payload[i] = LoRa.read();  // Read one byte from the LoRa buffer
+        }
+    }
+
+    // Get the signal strength (RSSI) of the received packet
+    int SRssi = LoRa.packetRssi();
+
+    // Print the payload as a comma-separated list
+    Serial.print(",");
+    for (int i = 0; i < PAYLOAD_SIZE; i++) {
+        Serial.print(payload[i]); // Print each byte of the payload
+        if (i < PAYLOAD_SIZE - 1) Serial.print(",");  // Add a comma between bytes
+    }
+    Serial.print(",");  
+  }
+
   // Wait until data is available on the Serial port
   while (Serial.available() == 0){
   }  
   
-  // Create a byte array to store the payload
+  // Create a byte array to store the payload for transmission
   byte payload[PAYLOAD_SIZE];
   
   // Read PAYLOAD_SIZE bytes from the Serial input

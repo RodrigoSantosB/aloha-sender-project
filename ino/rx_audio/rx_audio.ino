@@ -1,62 +1,45 @@
+#include <SPI.h>  // Include the SPI library for communication
+#include <LoRa.h> // Include the LoRa library for LoRa communication
+
+int valorRssi = 0;  // Signal strength (RSSI)
 /*
-      Programa Receptor LoRa Simples
-
-      Componentes:
-        - Arduino Uno;
-        - Módulo LoRa XL1278-SMT;
-
-      Versão 1.0 - Versão inicial - 09/Out/2021
-
- *    * Criado por Cleber Borges - FunBots - @cleber.funbots  *     *
-
-      Instagram: https://www.instagram.com/cleber.funbots/
-      Facebook: https://www.facebook.com/cleber.funbots
-      YouTube: https://www.youtube.com/channel/UCKs2l5weIqgJQxiLj0A6Atw
-      Telegram: https://t.me/cleberfunbots
-
+  Received Signal Strength Indication (RSSI)
+  RSSI = -30dBm: strong signal.
+  RSSI = -120dBm: weak signal.
 */
 
-#include <SPI.h>
-#include <LoRa.h>
+int count = 0; // Counter variable (currently unused)
 
-String inString = "";    // string de leitura
-int dadoRecebido = 0;
-int valorRssi = 0;
-/*
-  Received Signal Strength Indication
-  RSSI=-30dBm: sinal forte.
-  RSSI=-120dBm: sinal fraco.
-*/
-
+// Setup function runs once when the program starts
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(9600); // Initialize serial communication at 9600 baud rate
 
-  while (!Serial);
-  Serial.println("Receptor LoRa");
-  if (!LoRa.begin(915E6)) {       // Frequencia de operação (ou 915E6)
-    Serial.println("Falha em iniciar o LoRa!");
-    while (1);
+  while (!Serial); // Wait for the Serial port to be ready
+  if (!LoRa.begin(915E6)) { // Initialize LoRa communication at 915 MHz
+    Serial.println("Falha em iniciar o LoRa!"); // Print error message if LoRa fails
+    while (1); // Halt the program if initialization fails
   }
 }
 
+// Main loop function runs repeatedly
 void loop() {
-
-  // Tenta receber pacote de dados
+  // Attempt to receive a data packet
   int packetSize = LoRa.parsePacket();
-  if (packetSize) {
-    // Lê pacote
-    while (LoRa.available())
-    {
-      int inChar = LoRa.read();
-      inString += (char)inChar;
-      dadoRecebido = inString.toInt();  // Converte para Int
+  if (packetSize) { // If a packet is received
+    byte message[62] = {}; // Clear the previous message buffer
+
+    // Read the packet byte by byte
+    int i = 0; // Index for the message array
+    while (LoRa.available()) { // While there is data in the LoRa buffer
+      byte packet_byte = (byte)LoRa.read(); // Read one byte from the LoRa buffer
+      message[i] = packet_byte; // Store the byte in the message array
+      i += 1; // Increment the index
     }
-    inString = "";
+
+    // Get the signal strength (RSSI) of the received packet
     valorRssi = LoRa.packetRssi();
+
+    // Send the received message back via Serial
+    Serial.write(message, i);
   }
-  Serial.print("Dado Recebido: ");
-  Serial.print(dadoRecebido);  // Imprime na Serial o valor recebido
-  Serial.print("; Sinal: ");
-  Serial.println(valorRssi);  // Imprime na Serial a intensidade do sinal
-  delay(10);
 }
