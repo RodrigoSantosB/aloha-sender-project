@@ -55,6 +55,7 @@ class Receiver():
                     try:
                         print("Receiving data...")
                         data = self.ser.read(PAYLOAD_SIZE)
+                        print("Received data:", data)
                         if time.time() - start > 40:
                             print("Playing audio...")
                             self.play()

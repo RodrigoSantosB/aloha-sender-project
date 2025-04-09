@@ -36,18 +36,18 @@ void loop() {
     
     valorRssi = LoRa.packetRssi();  // Obtém a intensidade do sinal
 
-    // Imprime os dados recebidos
-    // Serial.print("Mensagem Recebida: ");
+    // Imprime os dados recebidose
+    Serial.print("Mensagem Recebida: ");
     
-    // for (int i  = 0; i < sizeof(message); i++){
-    //  Serial.print(message[i]);
-    // }
+    for (int i  = 0; i < sizeof(message); i++){
+     Serial.print(message[i]);
+    }
 
     Serial.write(message, i);
 
-    // Serial.print(" | Sinal: ");
-    // Serial.print(valorRssi);
-    // Serial.println(" dBm");
+    Serial.print(" | Sinal: ");
+    Serial.print(valorRssi);
+    Serial.println(" dBm");
   }
   
   delay(10);  // Pequeno delay para evitar sobrecarga
