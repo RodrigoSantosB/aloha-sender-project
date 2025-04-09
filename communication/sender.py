@@ -10,7 +10,7 @@ import io
 PAYLOAD_SIZE = 62
 SERIAL_PORT = "/dev/ttyACM0" 
 BAUD_RATE = 9600
-AUDIO_PATH = "/home/rsb6/Desktop/Diciplinas/Top avanc em redes/aloha-sender-project/audios/alou_world.mp3"
+AUDIO_PATH = "/home/lucas/ALOHA/aloha-sender-project/audios/alou_world.mp3"
 
 class Sender():
     def __init__(self):
@@ -50,7 +50,7 @@ class Sender():
         self.transmit_packets(packets)
         
     def send_recorded_audio(self):
-        self.ser.open()
+        print("Recording audio...")
         mic = sr.Recognizer()
         with sr.Microphone() as source:
             mic.adjust_for_ambient_noise(source)
@@ -62,7 +62,6 @@ class Sender():
             print(f"Total Packets: {len(packets)}")
             self.transmit_packets(packets)
             self.ser.write(b"END")
-        self.ser.close()
             
     def compress_audio(self, audio_bytes):
         audio_bytes = io.BytesIO(audio_bytes)
@@ -79,26 +78,37 @@ class Sender():
             packets.append(packet_payload)
             
         return packets
+    
+    def send_packet(self, packet):
+        self.ser.write(packet)
+        # **Wait for ACK**
+        ack_received = False
+        start_time = time.time()
+        while time.time() - start_time < 5:  
+            if self.ser.in_waiting > 0:  
+                ack = self.ser.readline().decode().strip()  
+                if ack == "ACK":
+                    print(f"Packet sent successfully")
+                    ack_received = True
+                    break
+        if not ack_received:
+            raise serial.SerialTimeoutException
+        
 
     def transmit_packets(self, packets):
+        self.ser.open()
         try:
             print("Transmitting packets...")
             for i, packet in enumerate(packets): 
-                self.ser.write(packet)
-                # **Wait for ACK**
-                ack_received = False
-                start_time = time.time()
-                while time.time() - start_time < 5:  
-                    if self.ser.in_waiting > 0:  
-                        ack = self.ser.readline().decode().strip()  
-                        if ack:
-                            ack_received = True
-                            break
-                if not ack_received:
-                    print(f"ACK Timeout: Packet {i} not acknowledged!")
+                try:
+                    self.send_packet(packet)
+                except(serial.SerialTimeoutException) as e:
+                    print(f"Error transmitting packet {i}: {str(e)}")
+                    self.send_packet(packet)
 
             print("Transmission complete")
         except serial.SerialException as e:
             print(f"Serial communication error: {str(e)}")
         except Exception as e:
             print(f"An error occurred during transmission: {str(e)}")
+        self.ser.close()

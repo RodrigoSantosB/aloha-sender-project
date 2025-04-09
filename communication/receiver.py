@@ -13,6 +13,7 @@ PAYLOAD_SIZE = 62
 
 # Listen and recognize the speech
 
+
 class Receiver():
     def __init__(self):
         self.ser = serial.Serial(baudrate=BAUD_RATE, timeout=2)
@@ -48,6 +49,7 @@ class Receiver():
     def receive(self):
         self.audio_bytes_array = []
         self.ser.open()
+        count = 0
         try:
             start = time.time()
             while True:
@@ -55,8 +57,11 @@ class Receiver():
                     try:
                         print("Receiving data...")
                         data = self.ser.read(PAYLOAD_SIZE)
-                        print("Received data:", data)
-                        if time.time() - start > 40:
+                        print(data)
+                        print()
+                        count += 1
+                        print(count)
+                        if count  == 26:
                             print("Playing audio...")
                             self.play()
                             break

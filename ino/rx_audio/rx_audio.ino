@@ -1,27 +1,8 @@
-/*
-      Programa Receptor LoRa Simples
-
-      Componentes:
-        - Arduino Uno;
-        - Módulo LoRa XL1278-SMT;
-
-      Versão 1.0 - Versão inicial - 09/Out/2021
-
- *    * Criado por Cleber Borges - FunBots - @cleber.funbots  *     *
-
-      Instagram: https://www.instagram.com/cleber.funbots/
-      Facebook: https://www.facebook.com/cleber.funbots
-      YouTube: https://www.youtube.com/channel/UCKs2l5weIqgJQxiLj0A6Atw
-      Telegram: https://t.me/cleberfunbots
-
-*/
-
 #include <SPI.h>
 #include <LoRa.h>
 
-String inString = "";    // string de leitura
-int dadoRecebido = 0;
-int valorRssi = 0;
+// byte message[62] = {}; // Armazena a string recebida
+int valorRssi = 0;  // Intensidade do sinal
 /*
   Received Signal Strength Indication
   RSSI=-30dBm: sinal forte.
@@ -33,30 +14,41 @@ void setup() {
 
   while (!Serial);
   Serial.println("Receptor LoRa");
-  if (!LoRa.begin(915E6)) {       // Frequencia de operação (ou 915E6)
+  if (!LoRa.begin(433E6)) {       // Frequencia de operação (ou 915E6)
     Serial.println("Falha em iniciar o LoRa!");
     while (1);
   }
 }
 
 void loop() {
-
   // Tenta receber pacote de dados
   int packetSize = LoRa.parsePacket();
   if (packetSize) {
-    // Lê pacote
-    while (LoRa.available())
-    {
-      int inChar = LoRa.read();
-      inString += (char)inChar;
-      dadoRecebido = inString.toInt();  // Converte para Int
+    byte message[62] = {};;  // Limpa a string anterior
+    
+    // Lê pacote caractere por caractere
+    int i = 0;
+    while (LoRa.available()) {
+      byte packet_byte = (byte)LoRa.read();
+      message[i] = packet_byte;
+      i += 1;
     }
-    inString = "";
-    valorRssi = LoRa.packetRssi();
+    
+    valorRssi = LoRa.packetRssi();  // Obtém a intensidade do sinal
+
+    // Imprime os dados recebidose
+    Serial.print("Mensagem Recebida: ");
+    
+    for (int i  = 0; i < sizeof(message); i++){
+     Serial.print(message[i]);
+    }
+
+    Serial.write(message, i);
+
+    Serial.print(" | Sinal: ");
+    Serial.print(valorRssi);
+    Serial.println(" dBm");
   }
-  Serial.print("Dado Recebido: ");
-  Serial.print(dadoRecebido);  // Imprime na Serial o valor recebido
-  Serial.print("; Sinal: ");
-  Serial.println(valorRssi);  // Imprime na Serial a intensidade do sinal
-  delay(10);
+  
+  delay(10);  // Pequeno delay para evitar sobrecarga
 }
