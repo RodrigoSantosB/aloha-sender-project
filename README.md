@@ -1,17 +1,37 @@
 # 📡 Projeto de Transmissão de Áudio via Módulo LoRa SX1276 (915 MHz)
+[![NPM](https://img.shields.io/npm/l/react)](https://github.com/RodrigoSantosB/speech-recognition-signal-project/blob/main/LICENSE) 
+
 
 Este projeto investiga a **viabilidade da transmissão de áudio** utilizando módulos **LoRa SX1276** operando em 915 MHz. A proposta envolve compressão e envio segmentado de amostras de áudio por LoRa, com foco em **eficiência energética, longo alcance e baixo custo, o diagrama do projeto se encontra abaixo, mostrando o setup utilizado**.
 
 ---
 
+## Modelo conceitual
+![SETUP SQUEMATIC](https://github.com/RodrigoSantosB/aloha-sender-project/blob/main/imgs/esquematico.png) 
+
 ## ⚙️ Setup
+* Notebook Transmissor
+* Notebook Receptor
+* Arduino Uno
+* 2 módulos LoRa Wireless Transceiver Module 915MHz SX1276
 
 
+## Montando o circuito
+Pré-requisitos: Arduino UNO, Arduino IDE. O circuito em questão foi montado com a sequência de pinagem correspondente de 2, 5-13, caso troque a sequência, é necessário fazer o ajuste no código `script.ino`.
+
+```bash
+# Adicionar o código arduino na IDE arduiono
+
+# Baixar e instalar dependência pacote loRa 0.8.0
+
+# Selecionar a COM_ID correspondente na qual a placa está conectada
+
+```
 
 ## ⚙️ Requisitos
 
 - Python 3.10
-- Módulos LoRa SX1276 conectados via SPI (Arduino) com interface python
+- Módulos LoRa SX1276 conectados via UART (Arduino) com interface python3
 - Microfone e alto-falante (para captura e reprodução do áudio - Notebook)
 - `virtualenv` (opcional, mas recomendado)
 
@@ -60,7 +80,7 @@ E então execute:
 5. Decodificação / reconstrução dos dados
 6. Reprodução do áudio no alto-falante (streaming ou em buffer)
 
-Ao executar a `main.py` um menu será exibido mostrando as opções de sender ou received. 
+Ao executar a `main.py` um menu será exibido um MENU mostrando as opções de sender ou received, selecione uma das duas que correponda ao computador que fará um dos papéis (sender/receiver). 
 ---
 
 ## 📌 Observações
@@ -81,10 +101,8 @@ Ao executar a `main.py` um menu será exibido mostrando as opções de sender ou
 ---
 
 ## 📄 Licença
-
-MIT License
+[![NPM](https://img.shields.io/npm/l/react)](https://github.com/RodrigoSantosB/speech-recognition-signal-project/blob/main/LICENSE) 
 
 ---
 
 Desenvolvido com 💻 e 📡 por Rodrigo Santos Batista / Lucas Alexandre de Carvalho Paiva
-```
