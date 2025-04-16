@@ -84,7 +84,7 @@ Ao executar a `main.py` um menu será exibido um MENU mostrando as opções de s
 ---
 
 ## 📌 Observações
-- Deve-se ter dois arduinos disponivel, uma para funcionar como transmissor e outro como receptor. Os script de cada um está disponível no módulo em questão. Basta realizar o upload.
+- Deve-se ter dois arduinos disponíveis, um para funcionar como transmissor e outro como receptor. Os scripts de cada um estão disponíveis no módulo em questão. Basta realizar o upload.
 
 - O tempo de transmissão e a qualidade do áudio dependem fortemente do **Spreading Factor**, **BW**, e técnicas de compressão utilizadas.
 
